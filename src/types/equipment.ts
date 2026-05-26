@@ -6,6 +6,9 @@ export type Equipment = {
   model: string
   year: number
   condition: string
+  status: string
+  stock_number: string
+  serial_number: string
   price: number
   engine_hours: number | null
   power_hp: number | null
@@ -13,6 +16,10 @@ export type Equipment = {
   short_description: string
   images: string[]
   features: string[]
+  specs: Record<string, unknown>
+  featured: boolean
+  financing_available: boolean
+  delivery_available: boolean
   id: string
 }
 
@@ -33,6 +40,7 @@ export type EquipmentFilters = {
   brands: string[]
   years: number[]
   conditions: string[]
+  statuses: string[]
   price_min: number | null
   price_max: number | null
 }
@@ -44,6 +52,9 @@ export type EquipmentQuery = {
   brand?: string
   year?: number
   condition?: string
+  status?: string
+  featured?: boolean
+  q?: string
   price_min?: number
   price_max?: number
 }
@@ -54,7 +65,11 @@ export type LeadPayload = {
   customer_name: string
   phone: string
   email?: string | null
+  preferred_contact?: string | null
+  zip_code?: string | null
   message?: string | null
+  source_page?: string | null
+  consent_to_contact?: boolean
 }
 
 export type LeadResponse = Required<LeadPayload> & {

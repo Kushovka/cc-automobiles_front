@@ -13,6 +13,9 @@ type CatalogForm = {
   brand: string
   year: string
   condition: string
+  status: string
+  q: string
+  featured: boolean
   price_min: string
   price_max: string
 }
@@ -22,6 +25,9 @@ const emptyQuery: CatalogForm = {
   brand: '',
   year: '',
   condition: '',
+  status: '',
+  q: '',
+  featured: false,
   price_min: '',
   price_max: '',
 }
@@ -69,7 +75,12 @@ const CatalogPage = () => {
   const update = (field: keyof CatalogForm) => (event: ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     setLoading(true)
     setPage(1)
-    setQuery((current) => ({ ...current, [field]: event.target.value }))
+    setQuery((current) => ({
+      ...current,
+      [field]: event.target instanceof HTMLInputElement && event.target.type === 'checkbox'
+        ? event.target.checked
+        : event.target.value,
+    }))
   }
 
   const scrollToCatalogTop = () => {
@@ -78,28 +89,33 @@ const CatalogPage = () => {
 
   return (
     <PageFade>
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="premium-shell rounded-xl p-7">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="premium-shell rounded-md p-5 sm:p-7">
       <div className="flex flex-col justify-between gap-5 border-b border-stone-200/80 pb-7 md:flex-row md:items-end">
         <div>
           <p className="premium-kicker">Equipment Inventory</p>
-          <h1 className="mt-3 text-4xl font-extrabold text-stone-950">Farm machinery catalog</h1>
-          <p className="mt-3 max-w-2xl leading-7 text-stone-600">
-            Filter by machine type, brand, year, condition, and price range. Every listing is wired to the live backend inventory.
+          <h1 className="mt-3 text-4xl font-black uppercase leading-tight text-stone-950">Available Equipment</h1>
+          <p className="mt-3 max-w-2xl font-semibold leading-7 text-stone-600">
+            Search the live lot by machine, brand, stock number, year, status, and price range. Each lead is routed through the same quote workflow.
           </p>
         </div>
-        <div className="rounded-md border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-bold text-stone-700 shadow-sm">
+        <div className="rounded-md bg-stone-950 px-4 py-3 text-sm font-extrabold text-white shadow-sm">
           {total} machines found
         </div>
       </div>
 
       <div ref={catalogTopRef} className="mt-8 grid scroll-mt-28 gap-7 lg:grid-cols-[320px_1fr]">
         <Reveal>
-        <aside className="premium-card h-fit p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="flex items-center gap-2 text-xl font-extrabold text-stone-950">
-              <FaFilter className="text-emerald-800" /> Filters
+        <aside className="premium-card h-fit overflow-hidden">
+          <div className="bg-stone-950 px-5 py-4 text-white">
+            <h2 className="flex items-center gap-2 text-xl font-extrabold">
+              <FaFilter className="text-amber-300" /> Refine Inventory
             </h2>
+            <p className="mt-1 text-sm font-semibold text-stone-300">Narrow the lot before contacting sales.</p>
+          </div>
+          <div className="p-5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-extrabold uppercase tracking-wide text-stone-500">Filters</span>
             {activeCount > 0 && (
               <button
                 type="button"
@@ -116,10 +132,29 @@ const CatalogPage = () => {
           </div>
 
           <div className="mt-5 grid gap-4">
+            <label className="block text-sm font-bold text-stone-700">
+              Search
+              <input
+                value={query.q}
+                onChange={update('q')}
+                placeholder="Model, brand, stock #"
+                className="premium-input"
+              />
+            </label>
             <FilterSelect label="Category" value={query.category} onChange={update('category')} options={filters?.categories ?? []} />
             <FilterSelect label="Brand" value={query.brand} onChange={update('brand')} options={filters?.brands ?? []} />
             <FilterSelect label="Year" value={query.year} onChange={update('year')} options={(filters?.years ?? []).map(String)} />
             <FilterSelect label="Condition" value={query.condition} onChange={update('condition')} options={filters?.conditions ?? []} />
+            <FilterSelect label="Status" value={query.status} onChange={update('status')} options={filters?.statuses ?? []} />
+            <label className="flex items-center gap-3 rounded-md border border-stone-200 bg-stone-50 px-3 py-3 text-sm font-bold text-stone-700">
+              <input
+                type="checkbox"
+                checked={query.featured}
+                onChange={update('featured')}
+                className="h-4 w-4 accent-emerald-900"
+              />
+              Featured inventory only
+            </label>
             <label className="block text-sm font-bold text-stone-700">
               Min Price
               <input
@@ -142,6 +177,7 @@ const CatalogPage = () => {
                 className="premium-input"
               />
             </label>
+          </div>
           </div>
         </aside>
         </Reveal>
@@ -252,6 +288,9 @@ const toApiQuery = (query: CatalogForm, page: number): EquipmentQuery => ({
   brand: query.brand || undefined,
   year: query.year ? Number(query.year) : undefined,
   condition: query.condition || undefined,
+  status: query.status || undefined,
+  featured: query.featured || undefined,
+  q: query.q.length >= 2 ? query.q : undefined,
   price_min: query.price_min ? Number(query.price_min) : undefined,
   price_max: query.price_max ? Number(query.price_max) : undefined,
 })

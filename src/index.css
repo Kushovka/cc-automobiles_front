@@ -17,9 +17,7 @@
     margin: 0;
     min-width: 320px;
     font-family: "Montserrat", system-ui, sans-serif;
-    background:
-      radial-gradient(circle at top left, rgba(20, 83, 45, 0.10), transparent 32rem),
-      linear-gradient(180deg, #fbfaf7 0%, #f3f0e8 100%);
+    background: #f7f5ef;
     color: #1c1917;
   }
 
@@ -33,23 +31,23 @@
 
 @layer components {
   .premium-shell {
-    @apply border border-stone-200/80 bg-white/90 shadow-[0_18px_60px_rgba(28,25,23,0.08)] backdrop-blur;
+    @apply border border-stone-200 bg-white shadow-[0_10px_28px_rgba(28,25,23,0.06)];
   }
 
   .premium-card {
-    @apply rounded-lg border border-stone-200/80 bg-white shadow-[0_16px_48px_rgba(28,25,23,0.07)] transition duration-300;
+    @apply rounded-md border border-stone-200 bg-white shadow-[0_8px_24px_rgba(28,25,23,0.06)] transition duration-300;
   }
 
   .premium-card-hover {
-    @apply hover:-translate-y-0.5 hover:border-emerald-800/25 hover:shadow-[0_24px_70px_rgba(20,83,45,0.14)];
+    @apply hover:border-emerald-800/30 hover:shadow-[0_14px_34px_rgba(20,83,45,0.12)];
   }
 
   .premium-button {
-    @apply inline-flex items-center justify-center rounded-md bg-emerald-950 px-5 py-3 font-semibold text-white shadow-[0_12px_28px_rgba(6,78,59,0.20)] transition hover:bg-emerald-900 hover:shadow-[0_16px_34px_rgba(6,78,59,0.24)];
+    @apply inline-flex items-center justify-center rounded-md bg-emerald-950 px-5 py-3 font-extrabold text-white shadow-sm transition hover:bg-emerald-900;
   }
 
   .premium-button-gold {
-    @apply inline-flex items-center justify-center rounded-md bg-lime-400 px-5 py-3 font-extrabold text-stone-950 shadow-[0_14px_30px_rgba(132,204,22,0.22)] transition hover:bg-lime-300;
+    @apply inline-flex items-center justify-center rounded-md bg-amber-400 px-5 py-3 font-extrabold text-stone-950 shadow-sm transition hover:bg-amber-300;
   }
 
   .premium-input {
@@ -57,7 +55,7 @@
   }
 
   .premium-kicker {
-    @apply text-xs font-bold uppercase tracking-[0.22em] text-emerald-900;
+    @apply text-xs font-extrabold uppercase tracking-[0.2em] text-emerald-900;
   }
 
   .premium-divider {

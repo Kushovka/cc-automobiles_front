@@ -1,280 +1,224 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import {
-  FaArrowLeft,
   FaArrowRight,
-  FaCircleCheck,
+  FaClock,
+  FaLocationDot,
+  FaPhoneVolume,
   FaShieldHalved,
-  FaTractor,
   FaTruckFast,
+  FaWrench,
 } from 'react-icons/fa6'
 import { getEquipment } from '../api/equipment'
-import EquipmentVisual from '../components/EquipmentVisual'
+import EquipmentCard from '../components/EquipmentCard'
+import LeadForm from '../components/LeadForm'
 import { PageFade, Reveal } from '../components/motion'
-import SectionHeading from '../components/SectionHeading'
-import { CarouselSkeleton } from '../components/Skeleton'
+import { EquipmentCardSkeleton } from '../components/Skeleton'
 import type { Equipment } from '../types/equipment'
-import { formatNumber, formatPrice } from '../utils/format'
+import { business } from '../data/business'
+
+const brands = ['John Deere', 'Case IH', 'New Holland', 'Kubota', 'Bobcat', 'Caterpillar', 'Claas']
+
+const categories = [
+  ['Tractors', 'Utility, MFWD, row crop'],
+  ['Skid Steers', 'Compact loaders and attachments'],
+  ['Hay Equipment', 'Balers, mowers, rakes'],
+  ['Implements', 'Blades, loaders, farm tools'],
+]
+
+const trustItems = [
+  ['Inspected Equipment', 'Ask for condition notes, current hours, service history, and availability before visiting.'],
+  ['Straightforward Follow-Up', 'Sales requests include source page, phone, ZIP code, and message context for faster response.'],
+  ['Delivery Planning', 'Coordinate pickup, regional delivery, and machine handoff details with the dealer desk.'],
+]
 
 const HomePage = () => {
   const [featured, setFeatured] = useState<Equipment[]>([])
-  const [activeSlide, setActiveSlide] = useState(0)
   const [loadingFeatured, setLoadingFeatured] = useState(true)
 
   useEffect(() => {
-    getEquipment({ page: 1, page_size: 12 })
+    getEquipment({ page: 1, page_size: 6, featured: true })
       .then((data) => setFeatured(data.items))
       .catch(() => setFeatured([]))
       .finally(() => setLoadingFeatured(false))
   }, [])
 
-  const maxSlide = Math.max(0, featured.length - 1)
-
-  const goToPrevious = () => {
-    setActiveSlide((current) => (current <= 0 ? maxSlide : current - 1))
-  }
-
-  const goToNext = () => {
-    setActiveSlide((current) => (current >= maxSlide ? 0 : current + 1))
-  }
-
   return (
     <PageFade>
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#071711_0%,#173c2b_48%,#1c1917_100%)]">
-        <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(190,242,100,.18),transparent_26rem),radial-gradient(circle_at_80%_40%,rgba(255,255,255,.10),transparent_24rem)]" />
-        <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[linear-gradient(135deg,rgba(255,255,255,.10)_1px,transparent_1px)] bg-[length:34px_34px] opacity-40 lg:block" />
-        <div className="relative mx-auto grid min-h-[640px] max-w-7xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_430px] lg:px-8">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.26em] text-lime-300">AgroPrime Equipment Used Inventory</p>
-            <h1 className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight text-white sm:text-6xl">
-              Dependable farm machinery for hard-working operations.
+      <section className="relative overflow-hidden bg-stone-950 text-white">
+        <img
+          src="/images/dealer-lot.png"
+          alt={`${business.name} equipment lot in ${business.shortLocation}`}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/72 to-stone-950/18" />
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-stone-950 to-transparent" />
+
+        <div className="relative z-10 mx-auto flex min-h-[700px] max-w-7xl flex-col justify-end px-4 py-10 sm:px-6 lg:px-8 gap-5">
+          <div className="max-w-3xl">
+            <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-extrabold uppercase tracking-[0.18em] text-stone-950">
+              <FaLocationDot /> {business.shortLocation}
+            </div>
+            <h1 className="text-4xl font-black uppercase leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+              Your next machine starts here.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-200/95">
-              Browse inspected tractors, combines, sprayers, and hay equipment with clear pricing, dealer support, and delivery coordination.
+            <p className="mt-5 max-w-2xl text-lg font-semibold leading-8 text-stone-100 sm:text-xl">
+              Browse pre-owned equipment, call the dealer desk, or send a quick quote request to confirm availability before you visit.
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/catalog"
-                className="premium-button-gold gap-2 px-7 py-4"
-              >
-                Shop Inventory <FaArrowRight />
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Link to="/catalog" className="premium-button-gold gap-2 px-7 py-4 text-base">
+                Browse Inventory <FaArrowRight />
               </Link>
-              <Link
-                to="/contacts"
-                className="inline-flex items-center justify-center rounded-md border border-white/35 bg-white/8 px-7 py-4 font-semibold text-white backdrop-blur transition hover:bg-white/14"
-              >
-                Call Sales
-              </Link>
+              <a href={`tel:${business.phoneHref}`} className="inline-flex items-center justify-center gap-2 rounded-md border border-white/40 bg-white px-7 py-4 text-base font-extrabold text-stone-950 transition hover:bg-amber-100">
+                <FaPhoneVolume /> {business.phone}
+              </a>
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/15 bg-white/10 p-6 text-white shadow-[0_30px_90px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-            <p className="text-sm font-bold uppercase tracking-[0.22em] text-lime-200">Private Dealer Desk</p>
-            <div className="mt-6 grid gap-4">
-              {['Inspected listings', 'Transparent specifications', 'Trade-in conversations', 'Delivery planning'].map((item) => (
-                <div key={item} className="flex items-center gap-3 border-b border-white/10 pb-4 last:border-0 last:pb-0">
-                  <FaCircleCheck className="text-lime-300" />
-                  <span className="font-semibold">{item}</span>
-                </div>
+          <div className="mt-14 pb-8 sm:mt-16 sm:pb-10 lg:mt-20 lg:pb-12">
+            <div className="mx-auto grid max-w-7xl gap-4 text-stone-950 md:grid-cols-3">
+              <InfoLine icon={<FaClock />} label="Hours" value={business.hours} />
+              <InfoLine icon={<FaLocationDot />} label="Location" value={`${business.address}, ${business.cityState}`} />
+              <InfoLine icon={<FaPhoneVolume />} label="Sales Phone" value={business.phone} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-10 sm:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-md border border-stone-300 bg-white p-6 shadow-sm">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-stone-500">Quick Browse</p>
+                <p className="mt-2 font-semibold text-stone-600">Jump directly to the type of equipment you are shopping for.</p>
+              </div>
+              <Link to="/catalog" className="premium-button hidden gap-2 md:inline-flex">
+                See Full Catalog <FaArrowRight />
+              </Link>
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {categories.map(([title, text]) => (
+                <Link key={title} to="/catalog" className="flex items-center justify-between rounded-md border border-stone-200 px-4 py-3 transition hover:border-emerald-900 hover:bg-emerald-50">
+                  <span>
+                    <span className="block font-black text-stone-950">{title}</span>
+                    <span className="text-sm font-semibold text-stone-500">{text}</span>
+                  </span>
+                  <FaArrowRight className="text-emerald-900" />
+                </Link>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      <Reveal>
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-5 md:grid-cols-3">
-          {[
-            ['Our Inventory', 'Explore pre-owned and demo agricultural equipment selected for real field work.', FaTractor, '/catalog'],
-            ['Delivery', 'Coordinate regional or long-haul equipment transport with a clear handoff plan.', FaTruckFast, '/delivery'],
-            ['Warranty', 'Review inspection notes, coverage options, and dealer support before purchase.', FaShieldHalved, '/warranty'],
-          ].map(([title, text, Icon, to]) => (
-            <Link
-              key={title as string}
-              to={to as string}
-              className="premium-card premium-card-hover group overflow-hidden"
-            >
-              <div className="flex h-44 items-center justify-center bg-gradient-to-br from-emerald-950 via-emerald-800 to-lime-700">
-                <Icon className="text-6xl text-white/90" />
-              </div>
-              <div className="p-7">
-                <h2 className="text-2xl font-extrabold text-stone-950">{title as string}</h2>
-                <p className="mt-3 min-h-20 leading-7 text-stone-600">{text as string}</p>
-                <span className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-950 px-4 py-2 text-sm font-extrabold text-white transition group-hover:bg-emerald-800">
-                  Go <FaArrowRight />
-                </span>
-              </div>
-            </Link>
+      <section className="border-y border-stone-200 bg-[#f7f5ef]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-8 sm:px-6 lg:px-8">
+          <span className="mr-2 text-xs font-black uppercase tracking-[0.2em] text-stone-500">Equipment Brands</span>
+          {brands.map((brand) => (
+            <span key={brand} className="rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-extrabold text-stone-800 shadow-sm">
+              {brand}
+            </span>
           ))}
+          <Link to="/catalog" className="ml-auto hidden items-center gap-2 rounded-md bg-stone-950 px-4 py-2 text-sm font-extrabold text-white sm:inline-flex">
+            See Inventory <FaArrowRight />
+          </Link>
         </div>
       </section>
+
+      <Reveal>
+        <section className="bg-white py-14 sm:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-6 border-b border-stone-200 pb-8 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
+              <div className="min-w-0">
+                <p className="premium-kicker">Featured Equipment</p>
+                <h2 className="mt-4 max-w-3xl text-4xl font-black uppercase leading-tight text-stone-950">
+                  Machines ready for review
+                </h2>
+                <p className="mt-4 max-w-2xl font-semibold leading-7 text-stone-600">
+                  Featured inventory is pulled from the live catalog and routed to the same quote workflow.
+                </p>
+              </div>
+              <div className="lg:flex lg:justify-end">
+                <Link to="/catalog" className="premium-button w-full gap-2 sm:w-auto lg:w-full">
+                  View All Equipment <FaArrowRight />
+                </Link>
+              </div>
+            </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {loadingFeatured
+                ? Array.from({ length: 3 }).map((_, index) => <EquipmentCardSkeleton key={index} />)
+                : featured.map((item) => <EquipmentCard key={item.id} item={item} />)}
+            </div>
+            {!loadingFeatured && featured.length === 0 && (
+              <div className="premium-card mt-8 p-8 text-center font-bold text-stone-600">
+                Featured inventory is not available right now.
+              </div>
+            )}
+          </div>
+        </section>
       </Reveal>
 
       <Reveal>
-      <section className="bg-white/75 py-16 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            eyebrow="Featured Inventory"
-            title="Equipment available for review"
-            text="Selected listings from the live inventory, ready for specification review, quote requests, and delivery planning."
-          />
-          {loadingFeatured ? (
-            <CarouselSkeleton />
-          ) : (
-            <EquipmentCarousel
-              activeSlide={activeSlide}
-              items={featured}
-              onNext={goToNext}
-              onPrevious={goToPrevious}
-              onSelect={setActiveSlide}
-            />
-          )}
-        </div>
-      </section>
-      </Reveal>
-
-      <Reveal>
-      <section className="border-t border-stone-200/80 bg-stone-50/75 py-16">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">
-          <div className="premium-card p-8">
-            <h2 className="text-3xl font-extrabold text-stone-950">AgroPrime Equipment Dealer</h2>
-            <div className="mt-5 space-y-4 leading-8 text-stone-700">
-              <p>
-                Looking for a reliable source for pre-owned agricultural equipment? AgroPrime Equipment focuses on practical machines for farms that need dependable horsepower, clear information, and responsive dealer support.
-              </p>
-              <p>
-                Whether you are reviewing a row-crop tractor, a harvest-ready combine, a sprayer, or hay equipment, each listing is organized around the details that matter: condition, year, hours, horsepower, location, price, and key features.
-              </p>
-              <p>
-                Our team can help with service questions, delivery coordination, warranty conversations, and next-step planning before you commit to a machine.
+        <section className="border-y border-stone-200 bg-[#f4f0e6] py-14 sm:py-16">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[.9fr_1.1fr] lg:px-8">
+            <div>
+              <p className="premium-kicker">Why Buyers Call First</p>
+              <h2 className="mt-3 text-4xl font-black uppercase leading-tight text-stone-950">
+                A practical dealer process built for fast decisions.
+              </h2>
+              <p className="mt-5 font-semibold leading-8 text-stone-700">
+                The homepage is built for mobile traffic from ads: quick phone access, short quote forms, visible inventory, and clear location signals.
               </p>
             </div>
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-1">
+              {trustItems.map(([title, text], index) => (
+                <article key={title} className="rounded-md border border-stone-300 bg-white p-5 shadow-sm">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-md bg-emerald-950 text-white">
+                    {index === 0 && <FaShieldHalved />}
+                    {index === 1 && <FaWrench />}
+                    {index === 2 && <FaTruckFast />}
+                  </div>
+                  <h3 className="mt-4 text-xl font-black text-stone-950">{title}</h3>
+                  <p className="mt-2 font-semibold leading-7 text-stone-600">{text}</p>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="rounded-xl border border-emerald-900 bg-gradient-to-br from-emerald-950 to-stone-950 p-8 text-white shadow-[0_22px_70px_rgba(6,78,59,0.18)]">
-            <p className="text-sm font-semibold uppercase tracking-wide text-lime-300">Call Us</p>
-            <p className="mt-3 text-3xl font-extrabold">(555) 019-8400</p>
-            <p className="mt-4 leading-7 text-stone-200">
-              Speak with sales about equipment availability, trade-ins, delivery windows, and inspection details.
-            </p>
-            <Link
-              to="/contacts"
-              className="premium-button-gold mt-6 gap-2"
-            >
-              Contact Us <FaArrowRight />
-            </Link>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="bg-white py-14 sm:py-16">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8">
+            <div className="overflow-hidden rounded-md border border-stone-300 bg-stone-950 text-white">
+              <img src="/images/dealer-team.png" alt={`${business.name} team`} className="h-72 w-full object-cover opacity-90" />
+              <div className="p-6">
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-300">Local Dealer Desk</p>
+                <h2 className="mt-3 text-3xl font-black uppercase leading-tight">
+                  Talk to a team that knows the lot.
+                </h2>
+                <p className="mt-4 leading-7 text-stone-300">
+                  Send a request with your equipment question, delivery ZIP, or trade-in notes. The dealer desk can follow up by phone, text, or email.
+                </p>
+              </div>
+            </div>
+            <LeadForm compact leadType="contact" title="Send a Quick Request" />
           </div>
-        </div>
-      </section>
+        </section>
       </Reveal>
     </PageFade>
   )
 }
 
-type EquipmentCarouselProps = {
-  activeSlide: number
-  items: Equipment[]
-  onNext: () => void
-  onPrevious: () => void
-  onSelect: (index: number) => void
-}
-
-const EquipmentCarousel = ({ activeSlide, items, onNext, onPrevious, onSelect }: EquipmentCarouselProps) => {
-  if (items.length === 0) {
-    return (
-      <div className="mt-10 rounded-md border border-stone-200 bg-stone-50 p-8 text-center font-semibold text-stone-600">
-        Featured equipment is not available right now.
-      </div>
-    )
-  }
-
-  return (
-    <div className="mt-10">
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <p className="text-sm font-semibold text-stone-600">
-          Showing {activeSlide + 1} of {items.length}
-        </p>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onPrevious}
-            className="flex h-11 w-11 items-center justify-center rounded-md border border-stone-300 bg-white text-stone-900 shadow-sm transition hover:bg-stone-100"
-            aria-label="Previous equipment"
-          >
-            <FaArrowLeft />
-          </button>
-          <button
-            type="button"
-            onClick={onNext}
-            className="flex h-11 w-11 items-center justify-center rounded-md bg-emerald-950 text-white shadow-sm transition hover:bg-emerald-800"
-            aria-label="Next equipment"
-          >
-            <FaArrowRight />
-          </button>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-md">
-        <div
-          className="flex items-stretch transition-transform duration-500 ease-out"
-          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
-        >
-          {items.map((item) => (
-            <div key={item.id} className="flex min-w-full px-0 sm:px-1">
-              <FeaturedListing item={item} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-5 flex justify-center gap-2">
-        {items.map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelect(index)}
-            className={`h-2.5 rounded-full transition ${
-              activeSlide === index ? 'w-8 bg-emerald-900' : 'w-2.5 bg-stone-300 hover:bg-stone-400'
-            }`}
-            aria-label={`Show ${item.title}`}
-          />
-        ))}
-      </div>
+const InfoLine = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+  <div className="flex gap-3 rounded-md border border-stone-300 bg-white px-5 py-4 shadow-[0_14px_34px_rgba(0,0,0,0.18)]">
+    <div className="mt-1 text-emerald-900">{icon}</div>
+    <div>
+      <p className="text-xs font-black uppercase tracking-wide text-stone-500">{label}</p>
+      <p className="mt-1 font-extrabold text-stone-950">{value}</p>
     </div>
-  )
-}
-
-const FeaturedListing = ({ item }: { item: Equipment }) => (
-  <article className="premium-card grid h-auto max-h-[650px] min-h-[320px] w-full overflow-hidden md:h-[360px] md:grid-cols-[minmax(400px,1.05fr)_minmax(380px,.95fr)]">
-    <Link to={`/equipment/${item.slug}`} className="block h-56 overflow-hidden md:h-full">
-      <EquipmentVisual
-        image={item.images[0]}
-        title={item.title}
-        category={item.category}
-        className="object-cover"
-      />
-    </Link>
-    <div className="flex min-h-0 flex-col justify-center overflow-hidden p-5 sm:p-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-emerald-800">
-        {item.condition} / {item.category}
-      </p>
-      <h3 className="mt-2 line-clamp-2 text-2xl font-extrabold text-stone-950">{item.title}</h3>
-      <div className="mt-4 grid gap-2 text-sm font-semibold text-stone-700 sm:grid-cols-2">
-        <span>Year: {item.year}</span>
-        <span>{item.engine_hours ? `Hours: ${formatNumber(item.engine_hours)}` : 'Hours: N/A'}</span>
-        <span>{item.power_hp ? `Power: ${item.power_hp} hp` : `Brand: ${item.brand}`}</span>
-        <span>{item.location}</span>
-      </div>
-      <p className="mt-4 line-clamp-2 leading-6 text-stone-600">{item.short_description}</p>
-      <p className="mt-4 text-2xl font-extrabold text-emerald-900">Only {formatPrice(item.price)}</p>
-      <Link
-        to={`/equipment/${item.slug}`}
-        className="premium-button mt-5 w-full px-5 py-2.5 text-sm sm:w-fit"
-      >
-        More Info
-      </Link>
-    </div>
-  </article>
+  </div>
 )
 
 export default HomePage

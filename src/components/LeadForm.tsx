@@ -5,23 +5,31 @@ type LeadFormProps = {
   equipmentId?: string
   leadType?: string
   title?: string
+  compact?: boolean
+  onSuccess?: () => void
 }
 
 type FormState = {
   customer_name: string
   phone: string
   email: string
+  preferred_contact: string
+  zip_code: string
   message: string
+  consent_to_contact: boolean
 }
 
 const initialState: FormState = {
   customer_name: '',
   phone: '',
   email: '',
+  preferred_contact: 'phone',
+  zip_code: '',
   message: '',
+  consent_to_contact: true,
 }
 
-const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote' }: LeadFormProps) => {
+const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', compact = false, onSuccess }: LeadFormProps) => {
   const [form, setForm] = useState<FormState>(initialState)
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
@@ -38,10 +46,15 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote' }
         customer_name: form.customer_name,
         phone: form.phone,
         email: form.email || null,
+        preferred_contact: form.preferred_contact,
+        zip_code: form.zip_code || null,
         message: form.message || null,
+        source_page: window.location.pathname,
+        consent_to_contact: form.consent_to_contact,
       })
       setForm(initialState)
       setStatus('success')
+      onSuccess?.()
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, 'Could not send the request. Check backend connection and try again.'))
       setStatus('error')
@@ -71,9 +84,10 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote' }
           className="premium-input"
           value={form.phone}
           onChange={(event) => setForm({ ...form, phone: event.target.value })}
-          placeholder="+1 (555) 000-0000"
+          placeholder="(540) 886-8146"
         />
       </label>
+      {!compact && (
       <label className="block text-sm font-semibold text-stone-700">
         Email
         <input
@@ -84,14 +98,50 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote' }
           placeholder="name@farm.com"
         />
       </label>
+      )}
+      {!compact && (
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm font-semibold text-stone-700">
+          Preferred Contact
+          <select
+            className="premium-input bg-white"
+            value={form.preferred_contact}
+            onChange={(event) => setForm({ ...form, preferred_contact: event.target.value })}
+          >
+            <option value="phone">Phone</option>
+            <option value="email">Email</option>
+            <option value="text">Text</option>
+          </select>
+        </label>
+        <label className="block text-sm font-semibold text-stone-700">
+          ZIP Code
+          <input
+            className="premium-input"
+            value={form.zip_code}
+            onChange={(event) => setForm({ ...form, zip_code: event.target.value })}
+            placeholder="63023"
+          />
+        </label>
+      </div>
+      )}
       <label className="block text-sm font-semibold text-stone-700">
-        Message
+        {compact ? 'What are you looking for?' : 'Message'}
         <textarea
-          className="premium-input min-h-28"
+          className={`premium-input ${compact ? 'min-h-20' : 'min-h-28'}`}
           value={form.message}
           onChange={(event) => setForm({ ...form, message: event.target.value })}
-          placeholder="Share equipment questions, delivery needs, or trade-in details."
+          placeholder={compact ? 'Machine, stock #, or delivery question' : 'Share equipment questions, delivery needs, or trade-in details.'}
         />
+      </label>
+      <label className="flex items-start gap-3 rounded-md border border-stone-200 bg-stone-50 px-3 py-3 text-sm font-semibold leading-6 text-stone-700">
+        <input
+          type="checkbox"
+          required
+          checked={form.consent_to_contact}
+          onChange={(event) => setForm({ ...form, consent_to_contact: event.target.checked })}
+          className="mt-1 h-4 w-4 accent-emerald-900"
+        />
+        I agree to be contacted about equipment availability, quotes, financing, or delivery.
       </label>
       <button
         disabled={status === 'sending'}
