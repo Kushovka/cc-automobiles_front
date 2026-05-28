@@ -62,6 +62,11 @@ export type EquipmentQuery = {
 export type LeadPayload = {
   equipment_id?: string | null
   lead_type?: string
+  content_ids?: string[] | null
+  content_name?: string | null
+  content_type?: string | null
+  currency?: string | null
+  value?: number | null
   customer_name: string
   phone: string
   email?: string | null
@@ -70,6 +75,11 @@ export type LeadPayload = {
   message?: string | null
   source_page?: string | null
   consent_to_contact?: boolean
+  meta_event_id?: string | null
+  fbp?: string | null
+  fbc?: string | null
+  user_agent?: string | null
+  event_source_url?: string | null
 }
 
 export type LeadResponse = Required<LeadPayload> & {

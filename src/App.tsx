@@ -1,14 +1,24 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
 import CatalogPage from './pages/CatalogPage'
 import EquipmentDetailPage from './pages/EquipmentDetailPage'
 import HomePage from './pages/HomePage'
 import InfoPage from './pages/InfoPage'
+import { initMetaPixel, trackPageView } from './utils/metaPixel'
 
 const App = () => {
   const location = useLocation()
+
+  useEffect(() => {
+    initMetaPixel()
+  }, [])
+
+  useEffect(() => {
+    trackPageView()
+  }, [location.pathname])
 
   return (
     <AnimatePresence mode="wait">

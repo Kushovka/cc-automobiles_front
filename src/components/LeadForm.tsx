@@ -1,8 +1,12 @@
-import { type FormEvent, useState } from 'react'
+import { memo, type FormEvent, useCallback, useState } from 'react'
 import { createLead, getApiErrorMessage } from '../api/equipment'
+import { trackingConfig } from '../config/tracking'
+import { createMetaEventId, getCookieValue, splitName, trackLead } from '../utils/metaPixel'
 
 type LeadFormProps = {
   equipmentId?: string
+  equipmentTitle?: string
+  equipmentPrice?: number | null
   leadType?: string
   title?: string
   compact?: boolean
@@ -29,20 +33,57 @@ const initialState: FormState = {
   consent_to_contact: true,
 }
 
-const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', compact = false, onSuccess }: LeadFormProps) => {
+const onlyDigits = (value: string, limit: number) => value.replace(/\D/g, '').slice(0, limit)
+
+const LeadForm = ({
+  equipmentId,
+  equipmentTitle,
+  equipmentPrice,
+  leadType = 'quote',
+  title = 'Request a Quote',
+  compact = false,
+  onSuccess,
+}: LeadFormProps) => {
   const [form, setForm] = useState<FormState>(initialState)
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  const submit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (form.phone.length !== 10) {
+      setStatus('error')
+      setErrorMessage('Please enter a valid 10-digit US phone number.')
+      return
+    }
+
+    if (!compact && form.zip_code && form.zip_code.length !== 6) {
+      setStatus('error')
+      setErrorMessage('Please enter a valid 6-digit ZIP code.')
+      return
+    }
+
     setStatus('sending')
     setErrorMessage('')
+    const metaEventId = createMetaEventId('lead')
+    const fbp = getCookieValue('_fbp')
+    const fbc = getCookieValue('_fbc')
+    const { firstName, lastName } = splitName(form.customer_name)
+    const contentIds = [equipmentId ?? `${trackingConfig.meta.defaultLeadContentPrefix}-${leadType}`]
+    const contentType = equipmentId ? trackingConfig.meta.productContentType : trackingConfig.meta.serviceContentType
+    const contentName = equipmentTitle ?? `${leadType} request`
+    const currency = trackingConfig.meta.currency
+    const eventValue = equipmentPrice ?? trackingConfig.meta.defaultLeadValue
+    const externalId = form.email || form.phone || null
 
     try {
       await createLead({
         equipment_id: equipmentId ?? null,
         lead_type: leadType,
+        content_ids: contentIds,
+        content_name: contentName,
+        content_type: contentType,
+        currency,
+        value: eventValue,
         customer_name: form.customer_name,
         phone: form.phone,
         email: form.email || null,
@@ -51,6 +92,29 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', 
         message: form.message || null,
         source_page: window.location.pathname,
         consent_to_contact: form.consent_to_contact,
+        meta_event_id: metaEventId,
+        fbp,
+        fbc,
+        user_agent: navigator.userAgent,
+        event_source_url: window.location.href,
+      })
+      trackLead({
+        eventId: metaEventId,
+        leadType,
+        contentIds,
+        contentName,
+        contentType,
+        currency,
+        value: eventValue,
+        advancedMatching: {
+          email: form.email,
+          phone: form.phone,
+          firstName,
+          lastName,
+          externalId,
+          fbp,
+          fbc,
+        },
       })
       setForm(initialState)
       setStatus('success')
@@ -59,7 +123,7 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', 
       setErrorMessage(getApiErrorMessage(error, 'Could not send the request. Check backend connection and try again.'))
       setStatus('error')
     }
-  }
+  }, [compact, equipmentId, equipmentPrice, equipmentTitle, form, leadType, onSuccess])
 
   return (
     <form onSubmit={submit} className="premium-card space-y-4 p-6">
@@ -81,10 +145,14 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', 
         Phone
         <input
           required
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
           className="premium-input"
           value={form.phone}
-          onChange={(event) => setForm({ ...form, phone: event.target.value })}
-          placeholder="(540) 886-8146"
+          onChange={(event) => setForm({ ...form, phone: onlyDigits(event.target.value, 10) })}
+          placeholder="5408868146"
+          title="Enter a 10-digit US phone number"
         />
       </label>
       {!compact && (
@@ -116,10 +184,14 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', 
         <label className="block text-sm font-semibold text-stone-700">
           ZIP Code
           <input
+            inputMode="numeric"
+            maxLength={6}
+            pattern="[0-9]{6}"
             className="premium-input"
             value={form.zip_code}
-            onChange={(event) => setForm({ ...form, zip_code: event.target.value })}
-            placeholder="63023"
+            onChange={(event) => setForm({ ...form, zip_code: onlyDigits(event.target.value, 6) })}
+            placeholder="244010"
+            title="Enter a 6-digit ZIP code"
           />
         </label>
       </div>
@@ -155,4 +227,4 @@ const LeadForm = ({ equipmentId, leadType = 'quote', title = 'Request a Quote', 
   )
 }
 
-export default LeadForm
+export default memo(LeadForm)

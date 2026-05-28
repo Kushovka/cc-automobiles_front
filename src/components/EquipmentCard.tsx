@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { memo } from 'react'
 import { FaCircleCheck, FaGaugeHigh, FaLocationDot, FaPhoneVolume, FaRegCalendar, FaTruckFast } from 'react-icons/fa6'
 import type { Equipment } from '../types/equipment'
 import { formatNumber, formatPrice } from '../utils/format'
@@ -74,4 +75,4 @@ const EquipmentCard = ({ item }: EquipmentCardProps) => (
   </motion.article>
 )
 
-export default EquipmentCard
+export default memo(EquipmentCard)

@@ -37,6 +37,8 @@ const Layout = () => {
               src="/images/vess-logo.png"
               alt={`${business.name} logo`}
               className="h-12 w-40 object-contain sm:h-14 sm:w-48 lg:h-16 lg:w-56"
+              loading="eager"
+              decoding="async"
             />
           </NavLink>
 
@@ -86,6 +88,8 @@ const Layout = () => {
                 src="/images/vess-logo.png"
                 alt={`${business.name} logo`}
                 className="h-16 w-52 shrink-0 object-contain sm:h-20 sm:w-64"
+                loading="lazy"
+                decoding="async"
               />
               <div className="hidden sm:block">
                 <h2 className="text-2xl font-extrabold text-white">{business.name}</h2>

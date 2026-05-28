@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { FaSeedling, FaTractor } from 'react-icons/fa6'
 import { resolveMediaUrl } from '../api/equipment'
 
@@ -57,4 +57,4 @@ const EquipmentVisual = ({ image, title, category, className = '' }: EquipmentVi
   )
 }
 
-export default EquipmentVisual
+export default memo(EquipmentVisual)
