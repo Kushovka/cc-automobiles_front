@@ -14,7 +14,7 @@ const HomePage = () => {
   const [loadingFeatured, setLoadingFeatured] = useState(true)
 
   useEffect(() => {
-    getEquipment({ page: 1, page_size: 6, featured: true })
+    getEquipment({ page: 1, page_size: 3, featured: true })
       .then((data) => setFeatured(data.items))
       .catch(() => setFeatured([]))
       .finally(() => setLoadingFeatured(false))

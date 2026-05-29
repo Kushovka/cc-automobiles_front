@@ -98,7 +98,7 @@ const CatalogPage = () => {
           <CatalogHeader total={total} />
 
           <div ref={catalogTopRef} className="mt-8 grid scroll-mt-28 gap-7 lg:grid-cols-[320px_1fr]">
-            <Reveal>
+            <Reveal immediate>
               <CatalogFilters
                 activeCount={activeCount}
                 filters={filters}

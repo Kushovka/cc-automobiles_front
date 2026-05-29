@@ -7,6 +7,6 @@ export const business = {
   cityState: 'Staunton, VA 24401',
   shortLocation: 'Staunton, VA',
   mapsUrl: 'https://www.google.com/maps/place/?q=place_id:ChIJ66jt43egtIkRaOZWQND2vH4',
-  hours: 'Monday-Friday, 8:00 AM-5:30 PM',
+  hours: 'Monday-Friday, 8:00 AM-6:00 PM',
   serviceArea: 'Serving Virginia farms, acreage owners, and regional contractors',
 }

@@ -3,6 +3,7 @@ import type {
   ApiValidationError,
   EquipmentDetail,
   EquipmentFilters,
+  EquipmentImagesResponse,
   EquipmentListResponse,
   EquipmentQuery,
   LeadPayload,
@@ -42,6 +43,17 @@ export const getEquipmentFilters = async () => {
 
 export const getEquipmentDetail = async (slug: string) => {
   const { data } = await api.get<EquipmentDetail>(`/equipment/${encodeURIComponent(slug)}`)
+
+  return data
+}
+
+export const getEquipmentImages = async (slug: string, offset = 0, limit = 12) => {
+  const { data } = await api.get<EquipmentImagesResponse>(
+    `/equipment/${encodeURIComponent(slug)}/images`,
+    {
+      params: { offset, limit },
+    },
+  )
 
   return data
 }

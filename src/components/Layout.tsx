@@ -23,15 +23,15 @@ const Layout = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="min-h-screen pb-16 text-stone-900 md:pb-0">
+    <div className="min-h-screen overflow-x-hidden pb-16 text-stone-900 md:pb-0">
       <header className="sticky top-0 z-40 border-b border-stone-300 bg-white shadow-sm">
         <div className="border-b border-stone-800 bg-stone-950">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs font-semibold sm:px-6 lg:px-8">
-            <span className="text-stone-300">Used tractors, skid steers, hay tools, and implements</span>
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 text-xs font-semibold sm:px-6 lg:px-8">
+            <span className="min-w-0 truncate text-stone-300">Used tractors, skid steers, hay tools, and implements</span>
             <span className="hidden text-stone-300 sm:inline">{business.hours} / {business.shortLocation} / {business.phone}</span>
           </div>
         </div>
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-5 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:gap-5 sm:px-6 lg:px-8">
           <NavLink to="/" className="flex shrink-0 items-center" onClick={() => setOpen(false)}>
             <img
               src="/images/vess-logo.png"

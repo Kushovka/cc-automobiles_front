@@ -6,9 +6,9 @@ import InfoLine from './InfoLine'
 const HeroSection = () => (
   <section className="relative overflow-hidden bg-stone-950 text-white">
     <img
-      src="/images/dealer-lot.png"
+      src="/images/home-hero-equipment.webp"
       alt={`${business.name} equipment lot in ${business.shortLocation}`}
-      className="absolute inset-0 h-full w-full object-cover"
+      className="absolute inset-0 h-full w-full object-cover object-[78%_center] sm:object-center"
       loading="eager"
       decoding="async"
     />

@@ -54,12 +54,12 @@ const EquipmentDetailPage = () => {
 
         <MobileDetailActions />
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_380px]">
-          <Reveal>
+        <div className="mt-6 grid min-w-0 max-w-full gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <Reveal immediate className="min-w-0 max-w-full">
             <EquipmentDetails item={item} />
           </Reveal>
 
-          <aside id="quote-form" className="scroll-mt-28 lg:sticky lg:top-24 lg:h-fit">
+          <aside id="quote-form" className="min-w-0 scroll-mt-28 lg:sticky lg:top-24 lg:h-fit">
             <LeadForm
               equipmentId={item.id}
               equipmentTitle={item.title}

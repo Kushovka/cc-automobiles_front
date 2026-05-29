@@ -11,10 +11,12 @@ export type Equipment = {
   serial_number: string
   price: number
   engine_hours: number | null
+  engine_hours_label: string | null
   power_hp: number | null
   location: string
   short_description: string
   images: string[]
+  images_total: number
   features: string[]
   specs: Record<string, unknown>
   featured: boolean
@@ -33,6 +35,14 @@ export type EquipmentListResponse = {
   total: number
   page: number
   page_size: number
+}
+
+export type EquipmentImagesResponse = {
+  items: string[]
+  total: number
+  offset: number
+  limit: number
+  has_more: boolean
 }
 
 export type EquipmentFilters = {
