@@ -5,73 +5,31 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-  }
-
   html {
     scroll-behavior: smooth;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
   }
 
   body {
-    margin: 0;
-    min-width: 320px;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    font-family: "Montserrat", system-ui, sans-serif;
-    background: #f7f5ef;
-    color: #1c1917;
+    @apply bg-slate-50 text-zinc-950 antialiased;
+    font-family: 'Montserrat', system-ui, sans-serif;
   }
 
-  #root {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  button,
-  input,
-  select,
-  textarea {
-    font: inherit;
+  ::selection {
+    @apply bg-blue-900 text-white;
   }
 }
 
 @layer components {
-  .premium-shell {
-    @apply border border-stone-200 bg-white shadow-[0_10px_28px_rgba(28,25,23,0.06)];
+  .section {
+    @apply py-14 sm:py-20;
   }
 
-  .premium-card {
-    @apply rounded-md border border-stone-200 bg-white shadow-[0_8px_24px_rgba(28,25,23,0.06)] transition duration-300;
+  .input {
+    @apply w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-blue-800 focus:ring-4 focus:ring-blue-800/10;
   }
 
-  .premium-card-hover {
-    @apply hover:border-emerald-800/30 hover:shadow-[0_14px_34px_rgba(20,83,45,0.12)];
-  }
-
-  .premium-button {
-    @apply inline-flex items-center justify-center rounded-md bg-emerald-950 px-5 py-3 font-extrabold text-white shadow-sm transition hover:bg-emerald-900;
-  }
-
-  .premium-button-gold {
-    @apply inline-flex items-center justify-center rounded-md bg-amber-400 px-5 py-3 font-extrabold text-stone-950 shadow-sm transition hover:bg-amber-300;
-  }
-
-  .premium-input {
-    @apply mt-2 w-full rounded-md border border-stone-300/90 bg-white/95 px-3 py-3 font-medium text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-emerald-800 focus:ring-4 focus:ring-emerald-900/10;
-  }
-
-  .premium-kicker {
-    @apply text-xs font-extrabold uppercase tracking-[0.2em] text-emerald-900;
-  }
-
-  .premium-divider {
-    @apply border-stone-200/80;
+  .label {
+    @apply text-sm font-semibold uppercase tracking-[0.08em] text-zinc-700;
   }
 }
 

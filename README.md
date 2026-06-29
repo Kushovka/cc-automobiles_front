@@ -1,11 +1,10 @@
-# Frontend (React)
+# C&C Automobiles Frontend
 
-Основная документация — в корневом `README.md`.
+React/Vite frontend for the C&C Automobiles dealership website.
 
-Быстрый старт:
+Quick start:
 
 ```bash
-cd frontend
 printf "VITE_API_URL=http://localhost:8001\n" > .env
 npm install
 npm run dev

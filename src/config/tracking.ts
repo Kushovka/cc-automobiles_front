@@ -7,7 +7,7 @@ export const trackingConfig = {
     leadEventName: 'Lead',
     viewContentEventName: 'ViewContent',
     pageViewEventName: 'PageView',
-    defaultLeadContentPrefix: 'vess',
+    defaultLeadContentPrefix: 'cc-automobiles',
     defaultLeadValue: null as number | null,
     advancedMatchingFields: ['em', 'ph', 'fn', 'ln', 'external_id', 'fbp', 'fbc'],
   },

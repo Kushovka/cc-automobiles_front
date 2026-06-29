@@ -1,54 +1,18 @@
-import { useState } from 'react'
-import { FaPhoneVolume, FaXmark } from 'react-icons/fa6'
-import LeadForm from './LeadForm'
+import { FaCarSide, FaMapMarkedAlt, FaPhoneAlt } from 'react-icons/fa'
+import { Link } from 'react-router'
 import { business } from '../data/business'
+import { trackContactCta } from '../utils/ctaTracking'
 
-const MobileLeadBar = () => {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <>
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-300 bg-white px-3 py-2 shadow-[0_-12px_32px_rgba(28,25,23,0.16)] md:hidden">
-        <div className="grid grid-cols-2 gap-2">
-          <a
-            href={`tel:${business.phoneHref}`}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-md bg-emerald-950 px-3 text-base font-extrabold text-white"
-          >
-            <FaPhoneVolume /> Call
-          </a>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="min-h-12 rounded-md bg-amber-400 px-3 text-base font-extrabold text-stone-950"
-          >
-            Request Quote
-          </button>
-        </div>
-      </div>
-
-      {open && (
-        <div className="fixed inset-0 z-[60] bg-stone-950/60 px-3 py-5 backdrop-blur-sm md:hidden">
-          <div className="mx-auto max-h-full max-w-md overflow-y-auto rounded-lg bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white px-4 py-3">
-              <div>
-                <p className="text-xs font-extrabold uppercase tracking-wide text-emerald-900">Fast Dealer Request</p>
-                <p className="font-extrabold text-stone-950">{business.phone}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-md border border-stone-300 text-stone-700"
-                aria-label="Close request form"
-              >
-                <FaXmark />
-              </button>
-            </div>
-            <LeadForm compact leadType="quote" title="Request a Quote" onSuccess={() => setOpen(false)} />
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
-
-export default MobileLeadBar
+export const MobileLeadBar = () => (
+  <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-blue-950/10 bg-white shadow-[0_-12px_28px_rgba(15,23,42,0.14)] lg:hidden">
+    <a href={`tel:${business.phoneHref}`} className="flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-semibold text-blue-800" onClick={() => trackContactCta('phone_click', 'Mobile Lead Bar Phone')}>
+      <FaPhoneAlt className="text-lg" /> Call Now
+    </a>
+    <Link to="/inventory" className="flex min-h-16 flex-col items-center justify-center gap-1 border-x border-blue-950/10 text-xs font-semibold text-blue-950">
+      <FaCarSide className="text-lg" /> Inventory
+    </Link>
+    <a href={business.mapsUrl} target="_blank" rel="noreferrer" className="flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-semibold text-blue-950" onClick={() => trackContactCta('directions_click', 'Mobile Lead Bar Directions')}>
+      <FaMapMarkedAlt className="text-lg" /> Directions
+    </a>
+  </div>
+)

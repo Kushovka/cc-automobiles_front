@@ -42,6 +42,12 @@ export type MetaLeadEventData = {
   advancedMatching?: MetaAdvancedMatching
 }
 
+export type MetaContactActionData = {
+  eventId: string
+  actionType: string
+  contentName?: string | null
+}
+
 const cleanObject = <T extends Record<string, unknown>>(data: T) =>
   Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined && value !== null && value !== ''))
 
@@ -158,6 +164,21 @@ export const trackLead = ({
     currency,
     value,
     lead_type: leadType ?? 'quote',
+  }), { eventID: eventId })
+}
+
+export const trackContactAction = ({
+  eventId,
+  actionType,
+  contentName,
+}: MetaContactActionData) => {
+  if (!pixelId || !window.fbq) {
+    return
+  }
+
+  window.fbq('track', 'Contact', cleanObject({
+    action_type: actionType,
+    content_name: contentName,
   }), { eventID: eventId })
 }
 
