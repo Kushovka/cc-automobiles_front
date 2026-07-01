@@ -9,7 +9,6 @@ import { VehicleGridSkeleton } from '../components/Skeletons'
 import { VehicleCard } from '../components/VehicleCard'
 import { ReviewCarousel } from '../components/ReviewCarousel'
 import { business } from '../data/business'
-import { featuredVehicles } from '../data/inventory'
 import type { GoogleReview } from '../api/reviews'
 import type { Vehicle } from '../types/vehicle'
 import { trackContactCta } from '../utils/ctaTracking'
@@ -18,8 +17,9 @@ import { autoDealerSchema } from '../utils/schema'
 const trustItems = ['Local Stratford dealership', 'Financing options', 'Warranty available', 'Delivery available', 'Google reviews']
 
 export const HomePage = () => {
-  const [featured, setFeatured] = useState<Vehicle[]>(featuredVehicles.slice(0, 3))
+  const [featured, setFeatured] = useState<Vehicle[]>([])
   const [featuredLoading, setFeaturedLoading] = useState(true)
+  const [featuredError, setFeaturedError] = useState(false)
   const [customerReviews, setCustomerReviews] = useState<GoogleReview[]>([])
   const [reviewsLoading, setReviewsLoading] = useState(true)
   const [reviewsError, setReviewsError] = useState(false)
@@ -29,13 +29,15 @@ export const HomePage = () => {
 
     listVehicles({ featured: true, pageSize: 3 })
       .then((response) => {
-        if (!cancelled && response.items.length > 0) {
+        if (!cancelled) {
           setFeatured(response.items)
+          setFeaturedError(false)
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setFeatured(featuredVehicles.slice(0, 3))
+          setFeatured([])
+          setFeaturedError(true)
         }
       })
       .finally(() => {
@@ -150,7 +152,15 @@ export const HomePage = () => {
         text="Browse popular cars, SUVs, trucks, and crossovers available from a local Connecticut dealership."
       />
       <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 md:grid-cols-2 lg:grid-cols-3 lg:px-8">
-        {featuredLoading ? <VehicleGridSkeleton count={3} /> : featured.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} />)}
+        {featuredLoading ? <VehicleGridSkeleton count={3} /> : featuredError ? (
+          <div className="rounded-lg border border-blue-950/10 bg-white p-6 text-center text-zinc-700 shadow-sm md:col-span-2 lg:col-span-3">
+            Inventory is temporarily unavailable. Please try again later or call us for current vehicles.
+          </div>
+        ) : featured.length ? featured.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} />) : (
+          <div className="rounded-lg border border-blue-950/10 bg-white p-6 text-center text-zinc-700 shadow-sm md:col-span-2 lg:col-span-3">
+            No featured vehicles are available right now. Please check the full inventory or call us.
+          </div>
+        )}
       </div>
       <div className="mt-8 text-center">
         <Button href="/inventory" variant="secondary">See All Inventory</Button>

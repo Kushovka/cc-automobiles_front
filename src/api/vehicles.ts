@@ -1,5 +1,4 @@
 import { apiClient } from './client'
-import { vehicles as fallbackVehicles } from '../data/inventory'
 import type { Vehicle } from '../types/vehicle'
 
 type ApiVehicle = {
@@ -84,10 +83,25 @@ type ApiVehicleFilters = {
   mileage_max: number | null
 }
 
-const fallbackImagesBySlug = new Map(fallbackVehicles.map((vehicle) => [vehicle.slug, vehicle.images]))
+const apiOrigin = (() => {
+  try {
+    return new URL(apiClient.defaults.baseURL ?? '', window.location.origin).origin
+  } catch {
+    return window.location.origin
+  }
+})()
+
+const resolveImageUrl = (image: string) => {
+  if (image.startsWith('/media/')) {
+    return `${apiOrigin}${image}`
+  }
+
+  return image
+}
 
 const toVehicle = (vehicle: ApiVehicle): Vehicle => {
-  const images = vehicle.images.length > 0 ? vehicle.images : fallbackImagesBySlug.get(vehicle.slug) ?? fallbackVehicles[0]?.images ?? []
+  const sourceImages = vehicle.images.length > 0 ? vehicle.images : ['/images/cc-automobiles-storefront.webp']
+  const images = sourceImages.map(resolveImageUrl)
 
   return {
     id: vehicle.id,

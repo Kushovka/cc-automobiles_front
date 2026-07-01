@@ -5,14 +5,11 @@ import { SectionHeading } from '../components/SectionHeading'
 import { Seo } from '../components/Seo'
 import { InventoryToolbarSkeleton, VehicleGridSkeleton } from '../components/Skeletons'
 import { VehicleCard } from '../components/VehicleCard'
-import { vehicles } from '../data/inventory'
 import type { Vehicle } from '../types/vehicle'
 
 type SortKey = 'price-low' | 'price-high' | 'year' | 'mileage'
 
 const PAGE_SIZE = 6
-const unique = (values: string[]) => Array.from(new Set(values.filter(Boolean))).sort()
-const uniqueNumbers = (values: number[]) => Array.from(new Set(values)).sort((a, b) => b - a)
 const toNumber = (value: string) => value === '' ? undefined : Number(value)
 const numberValue = (value?: number) => value?.toString() ?? ''
 
@@ -33,16 +30,17 @@ export const InventoryPage = () => {
   const [sort, setSort] = useState<SortKey>('year')
   const [page, setPage] = useState(1)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [items, setItems] = useState<Vehicle[]>(vehicles)
-  const [total, setTotal] = useState(vehicles.length)
+  const [items, setItems] = useState<Vehicle[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [makes, setMakes] = useState(unique(vehicles.map((vehicle) => vehicle.make)))
-  const [models, setModels] = useState(unique(vehicles.map((vehicle) => vehicle.model)))
-  const [years, setYears] = useState(uniqueNumbers(vehicles.map((vehicle) => vehicle.year)))
-  const [bodyTypes, setBodyTypes] = useState(unique(vehicles.map((vehicle) => vehicle.bodyType)))
-  const [transmissions, setTransmissions] = useState(unique(vehicles.map((vehicle) => vehicle.transmission)))
-  const [drivetrains, setDrivetrains] = useState(unique(vehicles.map((vehicle) => vehicle.drivetrain)))
-  const [colors, setColors] = useState(unique(vehicles.map((vehicle) => vehicle.exteriorColor)))
+  const [inventoryError, setInventoryError] = useState(false)
+  const [makes, setMakes] = useState<string[]>([])
+  const [models, setModels] = useState<string[]>([])
+  const [years, setYears] = useState<number[]>([])
+  const [bodyTypes, setBodyTypes] = useState<string[]>([])
+  const [transmissions, setTransmissions] = useState<string[]>([])
+  const [drivetrains, setDrivetrains] = useState<string[]>([])
+  const [colors, setColors] = useState<string[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -50,13 +48,13 @@ export const InventoryPage = () => {
     getVehicleFilters()
       .then((filters) => {
         if (!cancelled) {
-          setMakes(filters.makes.length ? filters.makes : unique(vehicles.map((vehicle) => vehicle.make)))
-          setModels(filters.models.length ? filters.models : unique(vehicles.map((vehicle) => vehicle.model)))
-          setYears(filters.years.length ? filters.years : uniqueNumbers(vehicles.map((vehicle) => vehicle.year)))
-          setBodyTypes(filters.bodyTypes.length ? filters.bodyTypes : unique(vehicles.map((vehicle) => vehicle.bodyType)))
-          setTransmissions(filters.transmissions.length ? filters.transmissions : unique(vehicles.map((vehicle) => vehicle.transmission)))
-          setDrivetrains(filters.drivetrains.length ? filters.drivetrains : unique(vehicles.map((vehicle) => vehicle.drivetrain)))
-          setColors(filters.colors.length ? filters.colors : unique(vehicles.map((vehicle) => vehicle.exteriorColor)))
+          setMakes(filters.makes)
+          setModels(filters.models)
+          setYears(filters.years)
+          setBodyTypes(filters.bodyTypes)
+          setTransmissions(filters.transmissions)
+          setDrivetrains(filters.drivetrains)
+          setColors(filters.colors)
         }
       })
       .catch(() => undefined)
@@ -72,12 +70,12 @@ export const InventoryPage = () => {
     getVehicleFilters(make)
       .then((filters) => {
         if (!cancelled) {
-          setModels(filters.models.length ? filters.models : unique(vehicles.filter((vehicle) => !make || vehicle.make === make).map((vehicle) => vehicle.model)))
+          setModels(filters.models)
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setModels(unique(vehicles.filter((vehicle) => !make || vehicle.make === make).map((vehicle) => vehicle.model)))
+          setModels([])
         }
       })
 
@@ -115,31 +113,14 @@ export const InventoryPage = () => {
         if (!cancelled) {
           setItems(response.items)
           setTotal(response.total)
+          setInventoryError(false)
         }
       })
       .catch(() => {
         if (!cancelled) {
-          const filtered = vehicles
-            .filter((vehicle) => !make || vehicle.make === make)
-            .filter((vehicle) => !model || vehicle.model === model)
-            .filter((vehicle) => yearFrom === undefined || vehicle.year >= yearFrom)
-            .filter((vehicle) => yearTo === undefined || vehicle.year <= yearTo)
-            .filter((vehicle) => !bodyType || vehicle.bodyType === bodyType)
-            .filter((vehicle) => !transmission || vehicle.transmission === transmission)
-            .filter((vehicle) => !drivetrain || vehicle.drivetrain === drivetrain)
-            .filter((vehicle) => !color || vehicle.exteriorColor === color)
-            .filter((vehicle) => priceMin === undefined || vehicle.price >= priceMin)
-            .filter((vehicle) => priceMax === undefined || vehicle.price <= priceMax)
-            .filter((vehicle) => mileageMin === undefined || vehicle.mileage >= mileageMin)
-            .filter((vehicle) => mileageMax === undefined || vehicle.mileage <= mileageMax)
-            .sort((a, b) => {
-              if (sort === 'price-low') return a.price - b.price
-              if (sort === 'price-high') return b.price - a.price
-              if (sort === 'mileage') return a.mileage - b.mileage
-              return b.year - a.year
-            })
-          setItems(filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE))
-          setTotal(filtered.length)
+          setItems([])
+          setTotal(0)
+          setInventoryError(true)
         }
       })
       .finally(() => {
@@ -221,7 +202,15 @@ export const InventoryPage = () => {
             <aside className="hidden rounded-lg border border-blue-950/10 bg-white p-5 shadow-sm shadow-blue-950/5 lg:block">{filters}</aside>
             <div ref={resultsRef} className="scroll-mt-28">
               <div className="grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {loading ? <VehicleGridSkeleton count={PAGE_SIZE} /> : items.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} />)}
+                {loading ? <VehicleGridSkeleton count={PAGE_SIZE} /> : inventoryError ? (
+                  <div className="rounded-lg border border-blue-950/10 bg-white p-6 text-center text-zinc-700 shadow-sm md:col-span-2 xl:col-span-3">
+                    Inventory is temporarily unavailable. Please try again later or call us for current vehicles.
+                  </div>
+                ) : items.length ? items.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} />) : (
+                  <div className="rounded-lg border border-blue-950/10 bg-white p-6 text-center text-zinc-700 shadow-sm md:col-span-2 xl:col-span-3">
+                    No vehicles match these filters right now.
+                  </div>
+                )}
               </div>
               {!loading && totalPages > 1 ? (
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-1.5">

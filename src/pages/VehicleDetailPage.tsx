@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { FaCheckCircle, FaEnvelope, FaPhoneAlt } from 'react-icons/fa'
 import { getVehicle } from '../api/vehicles'
 import { Button } from '../components/Button'
@@ -8,7 +8,6 @@ import { Seo } from '../components/Seo'
 import { VehicleDetailSkeleton } from '../components/Skeletons'
 import { VehicleGallery } from '../components/VehicleGallery'
 import { business } from '../data/business'
-import { vehicles } from '../data/inventory'
 import type { Vehicle } from '../types/vehicle'
 import { trackContactCta } from '../utils/ctaTracking'
 import { formatNumber, formatPrice } from '../utils/format'
@@ -16,8 +15,9 @@ import { trackViewContent } from '../utils/metaPixel'
 
 export const VehicleDetailPage = () => {
   const { slug } = useParams()
-  const [vehicle, setVehicle] = useState<Vehicle | null>(() => vehicles.find((item) => item.slug === slug) ?? null)
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -26,20 +26,14 @@ export const VehicleDetailPage = () => {
       .then((item) => {
         if (!cancelled) {
           setVehicle(item)
+          setLoadError(false)
           trackViewContent(item.id, `${item.year} ${item.make} ${item.model} ${item.trim}`, item.price)
         }
       })
       .catch(() => {
         if (!cancelled) {
-          const fallbackVehicle = vehicles.find((item) => item.slug === slug) ?? null
-          setVehicle(fallbackVehicle)
-          if (fallbackVehicle) {
-            trackViewContent(
-              fallbackVehicle.id,
-              `${fallbackVehicle.year} ${fallbackVehicle.make} ${fallbackVehicle.model} ${fallbackVehicle.trim}`,
-              fallbackVehicle.price,
-            )
-          }
+          setVehicle(null)
+          setLoadError(true)
         }
       })
       .finally(() => {
@@ -53,7 +47,25 @@ export const VehicleDetailPage = () => {
     }
   }, [slug])
 
-  if (!vehicle && loaded) return <Navigate to="/inventory" replace />
+  if (!vehicle && loaded && loadError) {
+    return (
+      <>
+        <Seo title="Vehicle temporarily unavailable" description="This vehicle could not be loaded right now. Please try again later or call C&C Automobiles." />
+        <section className="section bg-slate-100">
+          <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+            <div className="rounded-lg border border-blue-950/10 bg-white p-8 shadow-sm">
+              <h1 className="text-3xl font-semibold text-zinc-950">Vehicle details are temporarily unavailable</h1>
+              <p className="mt-3 text-zinc-600">Please try again later or call us for current vehicle information.</p>
+              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                <Button href="/inventory" variant="secondary">Back to Inventory</Button>
+                <Button href={`tel:${business.phoneHref}`}><FaPhoneAlt /> Call Now</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
+    )
+  }
   if (!vehicle) return <VehicleDetailSkeleton />
 
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`
@@ -71,7 +83,7 @@ export const VehicleDetailPage = () => {
           model: vehicle.model,
           vehicleModelDate: vehicle.year,
           mileageFromOdometer: `${vehicle.mileage} MI`,
-          offers: { '@type': 'Offer', price: vehicle.price, priceCurrency: 'USD' },
+          ...(vehicle.price > 0 ? { offers: { '@type': 'Offer', price: vehicle.price, priceCurrency: 'USD' } } : {}),
         }}
       />
       <section className="section bg-slate-100">
