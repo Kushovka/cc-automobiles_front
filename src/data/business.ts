@@ -1,7 +1,7 @@
 export const business = {
   name: 'C&C Automobiles',
   legalNote: 'Used car dealership and auto service',
-  phone: '(203) 375-8504',
+  phone: '(203) 941-7973',
   phoneHref: '+12033758504',
   address: '1201 Barnum Ave',
   cityState: 'Stratford, CT 06614',
