@@ -18,6 +18,7 @@ export const VehicleDetailPage = () => {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState(false)
+  const [requestSubject, setRequestSubject] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -27,6 +28,7 @@ export const VehicleDetailPage = () => {
         if (!cancelled) {
           setVehicle(item)
           setLoadError(false)
+          setRequestSubject('')
           trackViewContent(item.id, `${item.year} ${item.make} ${item.model} ${item.trim}`, item.price)
         }
       })
@@ -92,10 +94,23 @@ export const VehicleDetailPage = () => {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue-800">Stock #{vehicle.stockNumber}</p>
             <h1 className="mt-2 text-4xl font-semibold text-zinc-950">{title}</h1>
-            <p className="mt-3 text-4xl font-semibold text-blue-800">{formatPrice(vehicle.price)}</p>
+            <p className="mt-3 text-4xl font-semibold text-blue-800">{formatPrice(vehicle.price, vehicle.status)}</p>
             <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="min-w-0 rounded-md border border-blue-950/10 bg-white p-4 shadow-sm shadow-blue-950/5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">VIN</p>
+                <p className="mt-1 font-semibold text-zinc-950">Available by request</p>
+                <a
+                  href="#request-info"
+                  className="mt-3 inline-flex min-h-10 items-center justify-center rounded-md bg-blue-800 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-950/20 hover:bg-blue-900"
+                  onClick={() => {
+                    setRequestSubject(`VIN request - ${title}`)
+                    trackContactCta('vin_request_click', 'Vehicle VIN Request')
+                  }}
+                >
+                  Get VIN
+                </a>
+              </div>
               {[
-                ['VIN', vehicle.vin],
                 ['Mileage', `${formatNumber(vehicle.mileage)} mi`],
                 ['Body', vehicle.bodyType],
                 ['Transmission', vehicle.transmission],
@@ -106,13 +121,13 @@ export const VehicleDetailPage = () => {
               ].map(([label, value]) => (
                 <div key={label} className="min-w-0 rounded-md border border-blue-950/10 bg-white p-4 shadow-sm shadow-blue-950/5">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">{label}</p>
-                  <p className={`mt-1 font-semibold text-zinc-950 ${label === 'VIN' ? 'break-all text-sm leading-6' : ''}`}>{value}</p>
+                  <p className="mt-1 font-semibold text-zinc-950">{value}</p>
                 </div>
               ))}
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button href={`tel:${business.phoneHref}`}><FaPhoneAlt /> Call Now</Button>
-              <Button href="#request-info" variant="secondary" onClick={() => trackContactCta('contact_form_click', 'Vehicle Request Info')}>Request Info</Button>
+              <Button href="#request-info" variant="secondary" onClick={() => { setRequestSubject(''); trackContactCta('contact_form_click', 'Vehicle Request Info') }}>Request Info</Button>
             </div>
             <p className="mt-6 text-lg leading-8 text-zinc-700">{vehicle.description}</p>
             <div className="mt-6 grid gap-2">
@@ -125,14 +140,14 @@ export const VehicleDetailPage = () => {
       </section>
       <section id="request-info" className="section">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <LeadForm title="Request Info" vehicleId={vehicle.id} vehicleName={title} vehicleValue={vehicle.price} />
+          <LeadForm title={requestSubject ? 'Get VIN' : 'Request Info'} vehicleId={vehicle.id} vehicleName={title} vehicleValue={vehicle.price} defaultSubject={requestSubject || undefined} />
         </div>
       </section>
       <div className="fixed inset-x-0 bottom-0 z-50 border-t border-blue-950/10 bg-white/95 px-4 py-3 shadow-[0_-18px_36px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-zinc-950">{title}</p>
-            <p className="text-base font-semibold text-blue-800">{formatPrice(vehicle.price)}</p>
+            <p className="text-base font-semibold text-blue-800">{formatPrice(vehicle.price, vehicle.status)}</p>
           </div>
           <a
             href={`tel:${business.phoneHref}`}
@@ -146,7 +161,7 @@ export const VehicleDetailPage = () => {
             href="#request-info"
             className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-800 text-white shadow-sm shadow-blue-950/20"
             aria-label="Request info about this vehicle"
-            onClick={() => trackContactCta('contact_form_click', 'Vehicle Sticky Request Info')}
+            onClick={() => { setRequestSubject(''); trackContactCta('contact_form_click', 'Vehicle Sticky Request Info') }}
           >
             <FaEnvelope />
           </a>

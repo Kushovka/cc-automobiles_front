@@ -1,4 +1,8 @@
-export const formatPrice = (price: number) => {
+export const formatPrice = (price: number, status?: string) => {
+  if (status?.toLowerCase() === 'sold') {
+    return 'Sold'
+  }
+
   if (!price || price <= 0) {
     return 'Call for Price'
   }

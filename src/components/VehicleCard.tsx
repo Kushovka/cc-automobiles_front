@@ -33,7 +33,7 @@ export const VehicleCard = ({ vehicle }: VehicleCardProps) => (
           </h3>
           <p className="mt-1 truncate text-sm font-semibold text-zinc-500">{vehicle.trim}</p>
         </div>
-        <p className="shrink-0 text-xl font-semibold text-blue-800">{formatPrice(vehicle.price)}</p>
+        <p className="shrink-0 text-xl font-semibold text-blue-800">{formatPrice(vehicle.price, vehicle.status)}</p>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm font-semibold text-zinc-700">
         <span className="flex min-h-9 items-center gap-2 rounded-md bg-slate-100 px-3 py-2">

@@ -11,6 +11,7 @@ type LeadFormProps = {
   vehicleValue?: number
   fields?: 'contact' | 'finance' | 'trade'
   showSubject?: boolean
+  defaultSubject?: string
 }
 
 const getPhoneDigits = (value: string) => value.replace(/\D/g, '').slice(0, 10)
@@ -24,7 +25,7 @@ const formatUsPhone = (value: string) => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
 }
 
-export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields = 'contact', showSubject = false }: LeadFormProps) => {
+export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields = 'contact', showSubject = false, defaultSubject }: LeadFormProps) => {
   const formStartedAt = useMemo(() => Date.now(), [])
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -49,7 +50,7 @@ export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields =
         const lastName = String(form.get('lastName') ?? '').trim()
         const phone = getPhoneDigits(phoneValue)
         const email = String(form.get('email') ?? '').trim()
-        const subject = String(form.get('subject') ?? '').trim()
+        const subject = String(form.get('subject') ?? defaultSubject ?? '').trim()
         const website = String(form.get('website') ?? '').trim()
         const preferredContact = String(form.get('preferredContact') ?? '').trim()
         const message = String(form.get('message') ?? '').trim()
