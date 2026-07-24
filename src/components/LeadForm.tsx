@@ -12,6 +12,8 @@ type LeadFormProps = {
   fields?: 'contact' | 'finance' | 'trade'
   showSubject?: boolean
   defaultSubject?: string
+  description?: string
+  submitLabel?: string
 }
 
 const getPhoneDigits = (value: string) => value.replace(/\D/g, '').slice(0, 10)
@@ -25,7 +27,7 @@ const formatUsPhone = (value: string) => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
 }
 
-export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields = 'contact', showSubject = false, defaultSubject }: LeadFormProps) => {
+export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields = 'contact', showSubject = false, defaultSubject, description, submitLabel }: LeadFormProps) => {
   const formStartedAt = useMemo(() => Date.now(), [])
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -146,6 +148,7 @@ export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields =
     >
       <h3 className="text-2xl font-semibold text-zinc-950">{title}</h3>
       {vehicleName ? <p className="mt-1 text-sm font-semibold text-zinc-500">{vehicleName}</p> : null}
+      {description ? <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">{description}</p> : null}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div className="hidden" aria-hidden="true">
           <label>
@@ -204,7 +207,7 @@ export const LeadForm = ({ title, vehicleId, vehicleName, vehicleValue, fields =
       </div>
       <div className="mt-5">
         <button className="inline-flex min-h-12 w-full items-center justify-center rounded-md bg-blue-800 px-5 py-3 text-base font-semibold text-white shadow-sm shadow-blue-950/20 transition hover:bg-blue-900 disabled:cursor-wait disabled:bg-zinc-500 sm:w-auto" disabled={submitting} type="submit">
-          {submitting ? 'Sending...' : fields === 'trade' ? 'Get My Trade-In Estimate' : fields === 'finance' ? 'Get Pre-Approved' : 'Request Info'}
+          {submitting ? 'Sending...' : submitLabel ?? (fields === 'trade' ? 'Get My Trade-In Estimate' : fields === 'finance' ? 'Get Pre-Approved' : 'Request Info')}
         </button>
       </div>
       {sent ? <p className="mt-4 rounded-md bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">Thanks. We received your request and will follow up shortly.</p> : null}

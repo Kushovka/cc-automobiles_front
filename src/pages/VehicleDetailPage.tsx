@@ -71,6 +71,12 @@ export const VehicleDetailPage = () => {
   if (!vehicle) return <VehicleDetailSkeleton />
 
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`
+  const isVinRequest = Boolean(requestSubject)
+  const formTitle = isVinRequest ? 'Get the VIN & Buying Details' : 'Request Vehicle Info'
+  const formDescription = isVinRequest
+    ? 'Send a quick request and we will follow up with the VIN, current availability, buying options, financing, trade-in details, or anything else you want to know about this vehicle.'
+    : 'Ask about availability, price, financing, trade-in options, delivery, warranty coverage, or anything else before you visit.'
+  const submitLabel = isVinRequest ? 'Get VIN & Details' : 'Request Vehicle Info'
 
   return (
     <>
@@ -140,7 +146,15 @@ export const VehicleDetailPage = () => {
       </section>
       <section id="request-info" className="section">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <LeadForm title={requestSubject ? 'Get VIN' : 'Request Info'} vehicleId={vehicle.id} vehicleName={title} vehicleValue={vehicle.price} defaultSubject={requestSubject || undefined} />
+          <LeadForm
+            title={formTitle}
+            vehicleId={vehicle.id}
+            vehicleName={title}
+            vehicleValue={vehicle.price}
+            defaultSubject={requestSubject || undefined}
+            description={formDescription}
+            submitLabel={submitLabel}
+          />
         </div>
       </section>
       <div className="fixed inset-x-0 bottom-0 z-50 border-t border-blue-950/10 bg-white/95 px-4 py-3 shadow-[0_-18px_36px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden">
